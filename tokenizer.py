@@ -37,6 +37,7 @@ class Tokenizer():
     self.act_tokens = bias
     self.UNKN = self.size-1
 
+  
   def encode_one(self, indx, tp:ttypes=None)->int:
     if   tp == ttypes.VIS and torch.all(indx < self.vis_vocab_size):
       return indx+self.vis_tokens
@@ -49,6 +50,7 @@ class Tokenizer():
     else:
       return self.UNKN
 
+  
   def encode(self, ref, obs, acts):
     ref = self.encode_one(ref,ttypes.REF)
     obs = self.encode_one(obs,ttypes.VIS)
@@ -56,6 +58,7 @@ class Tokenizer():
 
     return torch.cat((ref,obs,acts),dim=-1)
 
+  
   def decode_one(self,indx,r_type=False,r_str=False):
     print(torch.all(indx) >= self.size or torch.all(indx)<0,
           torch.all(indx) >= self.act_tokens,
@@ -91,7 +94,7 @@ class Tokenizer():
       if r_str: r = *r, self.spc_names[indx]
       if not r_type and not r_str: r, = r
       return r
-      
+
 # usage Example:
 # tkn = Tokenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
 #                 acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
