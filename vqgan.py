@@ -8,7 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
-def download_model(model_name="f16_1024", save_dir="chk_points"):
+def download_model(model_name="f16_1024",
+                   save_dir="chk_points",
+                   force_reload=False):
   if model_name=="f16_1024":
     uid = '8088892a516d4e3baf92'
   elif model_name=="f16_16384":
@@ -22,11 +24,14 @@ def download_model(model_name="f16_1024", save_dir="chk_points"):
     path = os.path.join(m_path,k)
     if not os.path.exists(path):
       os.mkdir(path)
-    url = ('https://heibox.uni-heidelberg.de/d/'
-           f'{uid}/files/?p=%2F{k}%2F{v}&dl=1')
     f_name = os.path.join(path, v)
-    print(url, f_name, sep=" -> ")
-    urlretrieve(url, f_name)
+    if not os.path.exists(f_name) or force_reload:  
+      url = ('https://heibox.uni-heidelberg.de/d/'
+             f'{uid}/files/?p=%2F{k}%2F{v}&dl=1')
+      print(url, f_name, sep=" -> ")
+      urlretrieve(url, f_name)
+    else: 
+      print(f_name+" exists")
      
 def load_config(config_path, display=False):
   config = OmegaConf.load(config_path)
