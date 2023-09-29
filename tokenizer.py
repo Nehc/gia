@@ -4,7 +4,7 @@ import numpy as np
 
 ttypes = Enum('ttypes',['ACT','VIS','REF','SPC'])
 
-class Tokenizer():
+class Thinkenizer():
   def __init__(self,
                vis_vocab_size=1024,
                ref_vocab_size=16,
