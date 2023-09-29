@@ -1,4 +1,4 @@
-# gia
+# GIA
 Project of goal-agent in simalted 3D environment 
 
 ## VQ-GAN (for tokenize visual perception)
@@ -64,7 +64,7 @@ ds = ThinkDataset(cf, all, True, use_mask=True, mask_probability=0.9)
 
 th = Thinker(cf,ds,tkn) # or just th = Thinker(cf), if not test predict needed
 ```
-As it just a pl-model, train is simple: 
+### Since this is a pl-model - train is simlpe: 
 ```python
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
