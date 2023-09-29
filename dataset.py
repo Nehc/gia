@@ -119,6 +119,8 @@ class ThinkDataset(Dataset):
       return goals, s.datas[idx].reshape(-1)
 
 # usage Example:
-# all.shape = torch.Size([10, 1000, 51]) : num_agents, steps, frame_len
 # ds = ThinkDataset(cf, all, True, use_mask=True, mask_probability=0.9)
 # loader = DataLoader(ds, batch_size=10, shuffle=True)
+# where: 
+#   cf - Thinker_Conf from config, 
+#   all - experience with shape = torch.Size([10, 1000, 51]) : num_agents, steps, frame_len
