@@ -45,21 +45,32 @@ source and reconstructed image:
 ```colab
 !git clone https://github.com/Nehc/gia.git
 !pip install -q -r gia/requirements.txt
-%cd gia
 ```
 
 ```python
 import torch
-from tokenizer import Tokenizer
-from config import Thinker_Conf
-from dataset import ThinkDataset
-from model import Thinker
+from gia.tokenizer import Tokenizer
+from gia.config import Thinker_Conf
+from gia.dataset import ThinkDataset
+from gia.model import Thinker
 
 tkn = Tokenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
                 acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
+
 cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
-all = torch.linspace(0, 1052, steps=10*1000*51).reshape(10, 1000, 51) # fake data, real comming soon
+
+# fake data (real comming soon):
+all = torch.randint(0, 1024, size=(10, 1000, 51))
 ds = ThinkDataset(cf, all, True, use_mask=True, mask_probability=0.9)
 
-th =  Thinker(cf,ds,tkn) 
+th = Thinker(cf,ds,tkn) # or just th = Thinker(cf), if not test predict needed
+```
+As it just a pl-model, train is simple: 
+```python
+import pytorch_lightning as pl
+from torch.utils.data import DataLoader
+
+loader = DataLoader(ds, batch_size=10, shuffle=True)
+trainer = pl.Trainer(gpus=1, max_epochs=5, precision=16)
+trainer.fit(model, loader)
 ```
