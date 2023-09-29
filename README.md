@@ -1,6 +1,45 @@
 # gia
 Project of goal-agent in simalted 3D environment 
 
+## VQ-GAN (for tokenize visual perception)
+https://github.com/CompVis/taming-transformers
+<details>
+  <summary>Details</summary>  
+  
+```python
+import torch
+from PIL import Image
+from vqgan import VQGAN, preprocess_vqgan, preprocess
+import numpy as np
+
+vq_gan = VQGAN()
+img = Image.open('photo.jpg').convert("RGB")
+x = preprocess_vqgan(np.expand_dims(np.array(img)/255,0))
+with torch.no_grad():
+  z, _, [_, _, ind] = vq_gan.encode(x)
+  b,c,h,w = z.shape
+  ind.squeeze_()
+```
+source image is 512x512x3. **ind** is 1024 (32x32 of 16x16 tiles)
+
+```python
+from vqgan import preprocess
+
+with torch.no_grad():
+  nz = vq_gan.quantize.get_codebook_entry(ind, (b,h,w,c))
+  rec = vq_gan.decode(nz).detach().cpu()
+
+norm = preprocess(rec,False)
+norm = norm.squeeze_().numpy()
+img = Image.fromarray(np.uint8(np.rollaxis(norm,0,3)*255))
+```
+source and reconstructed image:
+
+![image](https://github.com/Nehc/gia/assets/8426195/07d596ca-02c7-4f4a-a99c-e86fa8302bdb)
+
+</details>
+
+## Thinker (goal-agent model)
 ![image](https://github.com/Nehc/gia/assets/8426195/a92f3088-0f7e-41ee-859c-0dd0e375b7d7)
 
 ```colab
