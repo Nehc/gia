@@ -1,5 +1,5 @@
 # GIA
-Project of goal-agent in simulted 3D environment 
+Project of goal-agent in simulated 3D environment 
 
 ## VQ-GAN (for tokenize visual perception)
 https://github.com/CompVis/taming-transformers
