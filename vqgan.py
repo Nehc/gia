@@ -3,10 +3,7 @@ from urllib.request import urlretrieve
 from omegaconf import OmegaConf
 from taming.models.vqgan import VQModel
 from PIL import Image
-
 import numpy as np
-import matplotlib.pyplot as plt
-from IPython.display import clear_output
 
 def download_model(model_name="f16_1024",
                    save_dir="chk_points",
