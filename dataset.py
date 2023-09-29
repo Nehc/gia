@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 from torch.nn import functional as F
 from torch import Tensor
 from random import random
-from rewards import discount_rewards
+from .rewards import discount_rewards
 
 class ThinkDataset(Dataset):
   def __init__(s, th_conf, perception:Tensor,
