@@ -59,8 +59,7 @@ tkn = Tokenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market',
 
 cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
 
-# fake data (real comming soon):
-all = torch.randint(0, 1024, size=(10, 1000, 51))
+all = torch.randint(0, 1024, size=(10, 1000, 51)) # fake data (real comming soon)
 ds = ThinkDataset(cf, all, True, use_mask=True, mask_probability=0.9)
 
 th = Thinker(cf,ds,tkn) # or just th = Thinker(cf), if not test predict needed
