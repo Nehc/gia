@@ -69,3 +69,10 @@ download_model(Model)
 vq_conf = load_config(f"chk_points/vqgan_imagenet_{Model}/configs/model.yaml", display=False)
 vq_model = load_vqgan(vq_conf, ckpt_path=f"chk_points/vqgan_imagenet_{Model}/ckpts/last.ckpt")
 
+# usage Example:
+# img = Image.open(filepath).convert("RGB")
+# x = preprocess_vqgan(np.expand_dims(np.array(img)/255,0))
+# z, _, [_, _, ind] = vq_model.encode(x)
+# b,c,h,w = z.shape
+# nz = vq_model.quantize.get_codebook_entry(ind, (b,h,w,c))
+# rec = vq_model.decode(nz).detach().cpu()
