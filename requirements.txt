@@ -1,7 +1,7 @@
+torch==1.8
 mlagents==0.26.0
 protobuf==3.20
 pytorch-lightning==1.5.9
 omegaconf
 taming-transformers
-torch 
 numpy
