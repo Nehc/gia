@@ -17,7 +17,7 @@ img = Image.open('photo.jpg').convert("RGB")
 x = preprocess_vqgan(np.expand_dims(np.array(img)/255,0))
 with torch.no_grad():
   z, _, [_, _, ind] = vq_gan.encode(x)
-  b,c,h,w = z.shape
+  b,c,h,w = z.shape # 1, 256, 32, 32
   ind.squeeze_()
 ```
 source image is 512x512x3. **ind** is 1024 (32x32 of 16x16 tiles)
