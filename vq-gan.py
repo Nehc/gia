@@ -64,15 +64,16 @@ def custom_to_pil(x):
     x = x.convert("RGB")
   return x
 
-Model = "f16_1024"
-download_model(Model)
-vq_conf = load_config(f"chk_points/vqgan_imagenet_{Model}/configs/model.yaml", display=False)
-vq_model = load_vqgan(vq_conf, ckpt_path=f"chk_points/vqgan_imagenet_{Model}/ckpts/last.ckpt")
+def vq_gan(Model = "f16_1024"):
+  download_model(Model)
+  vq_conf = load_config(f"chk_points/vqgan_imagenet_{Model}/configs/model.yaml", display=False)
+  vq_model = load_vqgan(vq_conf, ckpt_path=f"chk_points/vqgan_imagenet_{Model}/ckpts/last.ckpt")
+  return vq_model
 
 # usage Example:
 # img = Image.open(filepath).convert("RGB")
 # x = preprocess_vqgan(np.expand_dims(np.array(img)/255,0))
-# z, _, [_, _, ind] = vq_model.encode(x)
+# z, _, [_, _, ind] = vq_gan.encode(x)
 # b,c,h,w = z.shape
-# nz = vq_model.quantize.get_codebook_entry(ind, (b,h,w,c))
-# rec = vq_model.decode(nz).detach().cpu()
+# nz = vq_gan.quantize.get_codebook_entry(ind, (b,h,w,c))
+# rec = vq_gan.decode(nz).detach().cpu()
