@@ -71,5 +71,5 @@ from torch.utils.data import DataLoader
 
 loader = DataLoader(ds, batch_size=10, shuffle=True)
 trainer = pl.Trainer(gpus=1, max_epochs=5, precision=16)
-trainer.fit(model, loader)
+trainer.fit(th, loader)
 ```
