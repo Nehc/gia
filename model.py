@@ -14,8 +14,8 @@ from rewards import oneHotProb
 class Thinker(pl.LightningModule):
   def __init__(self,
                conf: Thinker_Conf,
-               ds: ThinkDataset,
-               tkn: Tokenizer):
+                 ds: Optional[ThinkDataset],
+                tkn: Optional[Tokenizer]):
     super(Thinker, self).__init__()
     self.config, self.ds, self.tkn = conf, ds, tkn
     self.token_emb = nn.Embedding(conf.vocab_size, conf.emb_size)
