@@ -1,5 +1,6 @@
 #@title Маски
 import torch 
+from torch import Tensor
 
 '''
 TODO:
