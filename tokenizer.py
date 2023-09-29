@@ -96,5 +96,5 @@ class Thinkenizer():
       return r
 
 # usage Example:
-# tkn = Tokenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
-#                 acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
+# tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
+#                   acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
