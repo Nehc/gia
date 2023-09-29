@@ -203,7 +203,7 @@ class Thinker(pl.LightningModule):
   
 
   def validation_step(self, batch, batch_idx: int):
-    loss = self.step(batch, batch_idx)
+    loss = self.step(batch)
     self.log('val_loss', loss)
   
   
