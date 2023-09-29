@@ -9,7 +9,7 @@ https://github.com/CompVis/taming-transformers
 ```python
 import torch
 from PIL import Image
-from vqgan import VQGAN, preprocess_vqgan, preprocess
+from gia.vqgan import VQGAN, preprocess_vqgan
 import numpy as np
 
 vq_gan = VQGAN()
@@ -23,15 +23,15 @@ with torch.no_grad():
 source image is 512x512x3. **ind** is 1024 (32x32 of 16x16 tiles)
 
 ```python
-from vqgan import preprocess
+from gia.vqgan import custom_to_pil
 
 with torch.no_grad():
   nz = vq_gan.quantize.get_codebook_entry(ind, (b,h,w,c))
   rec = vq_gan.decode(nz).detach().cpu()
+  rec.squeeze_()
 
-norm = preprocess(rec,False)
-norm = norm.squeeze_().numpy()
-img = Image.fromarray(np.uint8(np.rollaxis(norm,0,3)*255))
+np_img = np.rollaxis(rec.numpy(),0,3)
+img = custom_to_pil(np_img)
 ```
 source and reconstructed image:
 
