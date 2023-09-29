@@ -73,6 +73,7 @@ def VQGAN(Model = "f16_1024"):
 # usage Example:
 # img = Image.open(filepath).convert("RGB")
 # x = preprocess_vqgan(np.expand_dims(np.array(img)/255,0))
+# vq_gan = VQGAN() 
 # z, _, [_, _, ind] = vq_gan.encode(x)
 # b,c,h,w = z.shape
 # nz = vq_gan.quantize.get_codebook_entry(ind, (b,h,w,c))
