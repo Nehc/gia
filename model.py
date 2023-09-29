@@ -5,11 +5,11 @@ from numpy.core.numeric import zeros_like
 import pytorch_lightning as pl
 from typing import Optional
 
-from config import Thinker_Conf
-from tokenizer import Tokenizer
-from dataset import ThinkDataset
-from masks import create_mask, square_subsequent_mask
-from rewards import oneHotProb 
+from .config import Thinker_Conf
+from .tokenizer import Tokenizer
+from .dataset import ThinkDataset
+from .masks import create_mask, square_subsequent_mask
+from .rewards import oneHotProb 
 
 class Thinker(pl.LightningModule):
   def __init__(self,
