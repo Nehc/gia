@@ -124,4 +124,4 @@ class ThinkDataset(Dataset):
 # loader = DataLoader(ds, batch_size=10, shuffle=True)
 # where: 
 #   cf - Thinker_Conf from config, 
-#   all - experience with shape = torch.Size([10, 1000, 51]) : num_agents, steps, frame_len
+#   all - experience with shape = torch.Size([num_agents, steps, frame_len])
