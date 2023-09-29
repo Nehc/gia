@@ -49,13 +49,13 @@ source and reconstructed image:
 
 ```python
 import torch
-from gia.tokenizer import Tokenizer
+from gia.tokenizer import Thinkenizer
 from gia.config import Thinker_Conf
 from gia.dataset import ThinkDataset
 from gia.model import Thinker
 
-tkn = Tokenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
-                acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
+tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
+                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
 
 cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
 
