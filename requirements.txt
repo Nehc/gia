@@ -2,6 +2,6 @@ protobuf==3.20.3
 torchtext==0.6.0
 pytorch-lightning==1.5.9
 taming-transformers
-omegaconf
 mlagents_envs
+omegaconf
 numpy
