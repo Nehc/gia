@@ -52,28 +52,69 @@ source and reconstructed image:
 !git clone https://github.com/Nehc/gia.git
 !pip install -q -r gia/requirements.txt
 ```
+### Environment init
+```Python
+from mlagents_envs.environment import UnityEnvironment
 
+env = UnityEnvironment(file_name=None, # None if local UnityEnvironment avalible  
+                       #seed=SEED,     # if use SEED
+                       side_channels=[])
+env.reset()
+env_name = list(env.behavior_specs)[0]
+spec = env.behavior_specs[env_name]
+print(env_name, spec)
+```
+### Inference
 ```python
-import torch
+import tqdm, torch, numpy as np
+
 from gia.tokenizer import Thinkenizer
 from gia.config import Thinker_Conf
-from gia.dataset import ThinkDataset
 from gia.model import Thinker
+from gia.solver import Solver
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
                   acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
 
-cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
+th = Thinker(
+        Thinker_Conf(
+            GOAL_IDX=tkn.GOAL_IDX
+            ),
+        tkn = tkn
+        ).to(device)
 
-all = torch.randint(0, 1024, size=(10, 1000, 51)) # fake data (real comming soon)
-ds = ThinkDataset(cf, all, True, use_mask=True, mask_probability=0.9)
+s = Solver(th)
 
-th = Thinker(cf,ds,tkn) # or just th = Thinker(cf), if not test predict needed
+obs = None; datas=[]
+
+for i in tqdm.trange(1000):
+  decision_steps, _ = env.get_steps(env_name)
+  act, obs = s.Action_on_Decision(decision_steps,obs[-100:,:])
+  datas.append(torch.unsqueeze(obs, 1))
+  env.set_actions(env_name,act)
+  env.step()
+
+datas = torch.cat(datas,dim=1)
+torch.save(datas, 'dataset.pt')
 ```
+
 ### Since this is a pl-model - train is simlpe: 
 ```python
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
+
+from gia.config import Thinker_Conf
+from gia.dataset import ThinkDataset
+from gia.model import Thinker
+
+datas = torch.load('dataset.pt')
+tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
+                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
+cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
+ds = ThinkDataset(cf, datas, True, use_mask=True, mask_probability=0.9)
+th = Thinker(cf,ds,tkn)
 
 loader = DataLoader(ds, batch_size=10, shuffle=True)
 trainer = pl.Trainer(gpus=1, max_epochs=5, precision=16)
