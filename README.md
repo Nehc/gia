@@ -78,12 +78,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
                   acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
 
-th = Thinker(
-        Thinker_Conf(
-            GOAL_IDX=tkn.GOAL_IDX
-            ),
-        tkn = tkn
-        ).to(device)
+cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
+
+th = (Thinker.load_from_checkpoint("last.ckpt",
+              cf, tkn=tkn) if path.exists("last.ckpt") else
+      Thinker(cf, tkn=tkn)).to(device)
 
 s = Solver(th)
 
@@ -114,9 +113,13 @@ tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market
                   acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
 cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
 ds = ThinkDataset(cf, datas, True, use_mask=True, mask_probability=0.9)
-th = Thinker(cf,ds,tkn)
+th = (Thinker.load_from_checkpoint("last.ckpt",
+              cf, ds, tkn) if path.exists("last.ckpt") else
+      Thinker(cf, ds, tkn)).to(device)
 
 loader = DataLoader(ds, batch_size=10, shuffle=True)
 trainer = pl.Trainer(gpus=1, max_epochs=5, precision=16)
 trainer.fit(th, loader)
+
+trainer.save_checkpoint("last.ckpt")
 ```
