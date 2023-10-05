@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 from typing import Optional
 
 from .config import Thinker_Conf
-from .tokenizer import Tokenizer
+from .tokenizer import Thinkenizer
 from .dataset import ThinkDataset
 from .masks import create_mask, square_subsequent_mask
 from .rewards import oneHotProb 
@@ -15,7 +15,7 @@ class Thinker(pl.LightningModule):
   def __init__(self,
                conf: Thinker_Conf,
                  ds: Optional[ThinkDataset] = None,
-                tkn: Optional[Tokenizer] = None):
+                tkn: Optional[Thinkenizer] = None):
     super(Thinker, self).__init__()
     self.config, self.ds, self.tkn = conf, ds, tkn
     self.token_emb = nn.Embedding(conf.vocab_size, conf.emb_size)
