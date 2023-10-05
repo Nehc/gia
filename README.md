@@ -100,7 +100,7 @@ datas = torch.cat(datas,dim=1)
 torch.save(datas, 'dataset.pt')
 ```
 
-### Since this is a pl-model - train is simlpe: 
+### Train!: 
 ```python
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
