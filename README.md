@@ -104,6 +104,7 @@ torch.save(datas, 'dataset.pt')
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 
+from gia.tokenizer import Thinkenizer
 from gia.config import Thinker_Conf
 from gia.dataset import ThinkDataset
 from gia.model import Thinker
