@@ -42,7 +42,7 @@ source and reconstructed image:
 ## Thinker (goal-agent model)
 ![image](https://github.com/Nehc/gia/assets/8426195/a92f3088-0f7e-41ee-859c-0dd0e375b7d7)
 
-#### 51 token on **Frame** odf observation:
+#### 51 token on **Frame** of observation:
 - **R** - reference int index from refs_list, 
 - **Visual** - 49 visual vq_gan tokens (i am use 112x122 input, that give 7x7 tiles), 
 - **A** - action tokens from acts_list, 
