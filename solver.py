@@ -40,4 +40,4 @@ class Solver:
     acts = np.array(a,np.int8)
     acts = np.expand_dims(acts,axis=1)
     act.add_discrete(acts)
-    return act, torch.cat([input,res[:,-1]])
+    return act, torch.cat([input[:,:-1],res[:,-1]])
