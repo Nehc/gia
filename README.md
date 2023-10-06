@@ -114,8 +114,7 @@ from gia.model import Thinker
 
 datas = torch.load('dataset.pt')
 tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
-                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'],
-                  mask_id = 0) #??? НЕ знаю пока - надо ли...
+                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'], mask_id = 0) 
 cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
 ds = ThinkDataset(cf, datas, True, use_mask=True, mask_probability=0.9)
 th = (Thinker.load_from_checkpoint("last.ckpt",
