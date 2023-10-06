@@ -22,7 +22,7 @@ class Solver:
     act = ActionTuple()
     tg = argmax(LongTensor(DS.obs[1][:,:-2]), dim=1) # Спорно... вообще это метка класса (reference), 
                                                      # если он в поле зрения. Не должны ли мы его
-                                                     # маскировать? 
+                                                     # маскировать на инфренсе? Хотя бы через раз
     count = tg.shape[0] # определяем число агентов
     tg = tg.unsqueeze(1).to(self.device)
     vis = LongTensor(np.rollaxis(DS.obs[2], 3, 1))   # Получаем зрение...
