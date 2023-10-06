@@ -33,7 +33,8 @@ class Solver:
       pd = LongTensor([self.PAD_IDX]).repeat(count,1).to(self.device) # Cпорно! типа паддим action
                                                      # Вообще, я думаю надо изменить сдвиг и вообще все так, что бы 
                                                      # Action шел прям первым в кадре... Может просто местами поменять?
-      if type(self.history) == torch.Tensor:         # Если история есть 
+                                                     # Хотя... Учитывая, что кадр мы предсказываем целиком - без разницы!     
+      if type(self.history) == torch.Tensor: # Если история есть 
         input = torch.cat([self.history[:,self.max_len:,:], # Ее тоже на вход
                            self.tkn.encode(tg,ind,pd).unsqueeze(1)],dim=1)
       else: # А если нету - просто собираем из reference, vis и pad вместо aсtion 
