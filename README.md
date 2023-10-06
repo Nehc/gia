@@ -76,22 +76,25 @@ from gia.solver import Solver
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
-                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
+                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'],
+                  mask_id = 0) #??? НЕ знаю пока - надо ли...
 
-cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
-
-th = (Thinker.load_from_checkpoint("last.ckpt",
-              cf, tkn=tkn) if path.exists("last.ckpt") else
-      Thinker(cf, tkn=tkn)).to(device)
+if path.exists("last.ckpt"):
+  th = Thinker.load_from_checkpoint("last.ckpt",
+       conf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX),
+       tkn  = tkn).to(device)
+else:
+  th = Thinker(Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX),
+               tkn = tkn).to(device)
 
 s = Solver(th)
 
-obs = None; datas=[]
+datas=[]
 
-for i in tqdm.trange(1000):
+for i in tqdm.trange(steps):
   decision_steps, _ = env.get_steps(env_name)
-  act, obs = s.Action_on_Decision(decision_steps,obs[-100:,:])
-  datas.append(torch.unsqueeze(obs, 1))
+  act, hist = s.Action_on_Decision(decision_steps)
+  datas.append(hist)
   env.set_actions(env_name,act)
   env.step()
 
@@ -111,7 +114,8 @@ from gia.model import Thinker
 
 datas = torch.load('dataset.pt')
 tkn = Thinkenizer(refs_list = ['-','Barrel','Picture','Boxes','Vine box','Market','Gate','Door'],
-                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'])
+                  acts_list = ['No','Fwd','Bck','Rgt','Lft','Rsf','Lsf','Goal'],
+                  mask_id = 0) #??? НЕ знаю пока - надо ли...
 cf = Thinker_Conf(GOAL_IDX=tkn.GOAL_IDX)
 ds = ThinkDataset(cf, datas, True, use_mask=True, mask_probability=0.9)
 th = (Thinker.load_from_checkpoint("last.ckpt",
