@@ -60,12 +60,8 @@ source and reconstructed image:
 ### Environment init
 ```Python
 env_type = "simple" # @param ["simple", "cs2_italy"]
-gids = {'cs2_italy':'1fEDUcUpgBzrZ_feNRXsagZfFXHZIvoKa',
-        'simple':'1fDSxR3PPqoItJ0n1wAfVq--bCj4eNOos'}
-!gdown {gids[env_type]}
 !mkdir envs
-!unzip {env_type}.zip -d envs/{env_type} > /dev/null
-!rm {env_type}.zip
+!unzip gia/envs/{env_type}.zip -d envs/{env_type} > /dev/null
 !chmod -R 755 envs/{env_type}/{env_type}.x86_64
 !chmod -R 755 envs/{env_type}/UnityPlayer.so
 !ls -l envs/{env_type}
