@@ -83,7 +83,8 @@ env = UnityEnvironment(file_name=env_name,
                        additional_args=['count',f'{count}'])
 env.reset()
 env_name = list(env.behavior_specs)[0]
-spec = env.behavior_specs[env_name]print(env_name, spec)
+spec = env.behavior_specs[env_name]
+print(env_name, spec)
 ```
 ### Inference
 ```python
