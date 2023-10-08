@@ -47,7 +47,7 @@ source and reconstructed image:
 - **Visual** - 49 visual vq_gan tokens (i am use 112x122 input, that give 7x7 tiles), 
 - **A** - action tokens from acts_list, 
 - **G** - goal, tkn.GOAL_IDX.
-<a target="_blank" href="https://colab.research.google.com/github/https://colab.research.google.com/drive/1mWzz6i4qxvi19AUwRDTbUA9akUc1CMik?usp=sharing">
+<a target="_blank" href="https://colab.research.google.com/github/Nehc/gia/blob/main/gia.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
