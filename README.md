@@ -5,6 +5,9 @@ Project of goal-agent in simulated 3D environment
 https://github.com/CompVis/taming-transformers
 <details>
   <summary>Details</summary>  
+<a target="_blank" href="https://colab.research.google.com/github/Nehc/gia/blob/main/colab/VQ-GAN.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a> 
   
 ```python
 import torch
