@@ -125,7 +125,6 @@ for i in tqdm.trange(steps):
 datas = torch.cat(datas,dim=1)
 torch.save(datas, 'dataset.pt')
 ```
-
 ### Train!: 
 ```python
 import pytorch_lightning as pl
