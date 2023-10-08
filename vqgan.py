@@ -23,8 +23,12 @@ def download_model(model_name="f16_1024",
       os.mkdir(path)
     f_name = os.path.join(path, v)
     if not os.path.exists(f_name) or force_reload:  
-      url = ('https://heibox.uni-heidelberg.de/d/'
-             f'{uid}/files/?p=%2F{k}%2F{v}&dl=1')
+      if model_name=="f16_1024":
+        url = ('https://huggingface.co/Nehc/vqgan_imagenet'
+              f'_{model_name}/resolve/main/{k}/{v}')  
+      else:
+        url = ('https://heibox.uni-heidelberg.de/d/'
+              f'{uid}/files/?p=%2F{k}%2F{v}&dl=1')
       print(url, f_name, sep=" -> ")
       urlretrieve(url, f_name)
     else: 
