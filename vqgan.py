@@ -67,7 +67,7 @@ def custom_to_pil(x):
   return x
 
 def VQGAN(Model = "f16_1024"):
-  if os.path.exists('gia/models/vqgan_imagenet_{Model}'):
+  if os.path.exists(f'gia/models/vqgan_imagenet_{Model}'):
     vq_conf = load_config(f"gia/models/vqgan_imagenet_{Model}/configs/model.yaml", display=False)
     vq_model = load_vqgan(vq_conf, ckpt_path=f"gia/models/vqgan_imagenet_{Model}/ckpts/last.ckpt")
   else:  
