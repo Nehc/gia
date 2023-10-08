@@ -3,8 +3,8 @@ import torch, numpy as np
 from mlagents_envs.environment import ActionTuple
 from torch import LongTensor, argmax
 
-from gia.vqgan import VQGAN, preprocess_vqgan
-from gia.model import Thinker
+from .vqgan import VQGAN, preprocess_vqgan
+from .model import Thinker
 
 class Solver:
   def __init__(self, thinker:Thinker):
@@ -15,11 +15,11 @@ class Solver:
     self.tkn = thinker.tkn   # токенайзер
     self.PAD_IDX = self.tkn.PAD_IDX
     self.vq_gan = VQGAN().to(self.device) # гляделка
-    self.history = None
+    self.history, self.goal = None, None
 
-  def Action_on_Decision(self, DS,
-                         goal=None):
+  def Action_on_Decision(self, DS, goal=None):
     act = ActionTuple()
+    if goal is not None: self.goal = goal 
     tg = argmax(LongTensor(DS.obs[1][:,:-2]), dim=1) # Спорно... вообще это метка класса (reference), 
                                                      # если он в поле зрения. Не должны ли мы его
                                                      # маскировать на инфренсе? Хотя бы через раз
@@ -39,15 +39,12 @@ class Solver:
                            self.tkn.encode(tg,ind,pd).unsqueeze(1)],dim=1)
       else: # А если нету - просто собираем из reference, vis и pad вместо aсtion 
         input = self.tkn.encode(tg,ind, pd).unsqueeze(1)
-      if goal==None: # Вот оно! :) Тут собираем рандомную цель с маскированым vis
-        masked = torch.torch.ones_like(input[:,-1,1:-1],
-                                       device='cpu') * self.tkn.MASK_IDX
-        randgoal = torch.randint(self.tkn.ref_tokens,
-                                 self.tkn.act_tokens,
-                                (count,1))
+      if self.goal is None: # Вот оно! :) Тут собираем рандомную цель с маскированым vis
+        masked = torch.torch.ones_like(input[:,-1,1:-1], device='cpu') * self.tkn.MASK_IDX
+        randgoal = torch.randint(self.tkn.ref_tokens, self.tkn.act_tokens, (count,1))
         G = torch.ones(count,1)*self.tkn.GOAL_IDX
-        goal = torch.cat([randgoal,masked,G],dim=1).to(torch.int)
-      pr = self.thinker(goal.to(self.device),       # И наконец засылаем в "думалку"
+        self.goal = torch.cat([randgoal,masked,G],dim=1).to(torch.int)
+      pr = self.thinker(self.goal.to(self.device),       # И наконец засылаем в "думалку"
                         input.reshape(count,-1).to(self.device))
       res = pr[:,-1:,self.tkn.act_tokens:].argmax(-1) # Можно как-нить и похитрее семплить! 
     rand_acts = torch.randint_like(res, 0, tkn.act_vocab_size-1) # Простые рандомные acts... Хотя... Не такие и простые!
