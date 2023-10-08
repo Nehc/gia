@@ -47,22 +47,44 @@ source and reconstructed image:
 - **Visual** - 49 visual vq_gan tokens (i am use 112x122 input, that give 7x7 tiles), 
 - **A** - action tokens from acts_list, 
 - **G** - goal, tkn.GOAL_IDX.
+<a target="_blank" href="https://colab.research.google.com/github/https://colab.research.google.com/drive/1mWzz6i4qxvi19AUwRDTbUA9akUc1CMik?usp=sharing">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
 ```colab
 !git clone https://github.com/Nehc/gia.git
 !pip install -q -r gia/requirements.txt
+!apt-get install xvfb > /dev/null
+!pip -q install pyvirtualdisplay
 ```
 ### Environment init
 ```Python
+env_type = "simple" # @param ["simple", "cs2_italy"]
+gids = {'cs2_italy':'1fEDUcUpgBzrZ_feNRXsagZfFXHZIvoKa',
+        'simple':'1fDSxR3PPqoItJ0n1wAfVq--bCj4eNOos'}
+!gdown {gids[env_type]}
+!mkdir envs
+!unzip {env_type}.zip -d envs/{env_type} > /dev/null
+!rm {env_type}.zip
+!chmod -R 755 envs/{env_type}/{env_type}.x86_64
+!chmod -R 755 envs/{env_type}/UnityPlayer.so
+!ls -l envs/{env_type}
+env_name = f"envs/{env_type}/{env_type}.x86_64"
+```
+### Environment init
+```Python
+#from pyvirtualdisplay import Display # can`t screenshots
+from pyvirtualdisplay.smartdisplay import SmartDisplay as Display
 from mlagents_envs.environment import UnityEnvironment
-
-env = UnityEnvironment(file_name=None, # None if local UnityEnvironment avalible  
-                       #seed=SEED,     # if use SEED
-                       side_channels=[])
+SEED = 42 #@param {type:"integer"}
+count = 10 #@param {type:"integer"}
+disp = Display(); disp.start()
+env = UnityEnvironment(file_name=env_name,
+                       seed=SEED, side_channels=[],
+                       additional_args=['count',f'{count}'])
 env.reset()
 env_name = list(env.behavior_specs)[0]
-spec = env.behavior_specs[env_name]
-print(env_name, spec)
+spec = env.behavior_specs[env_name]print(env_name, spec)
 ```
 ### Inference
 ```python
@@ -72,6 +94,8 @@ from gia.tokenizer import Thinkenizer
 from gia.config import Thinker_Conf
 from gia.model import Thinker
 from gia.solver import Solver
+
+steps = 100 #@param {type:"integer"}
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
