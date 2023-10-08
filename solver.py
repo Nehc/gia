@@ -50,7 +50,9 @@ class Solver:
       pr = self.thinker(goal.to(self.device),       # И наконец засылаем в "думалку"
                         input.reshape(count,-1).to(self.device))
       res = pr[:,-1:,self.tkn.act_tokens:].argmax(-1) # Можно как-нить и похитрее семплить! 
-    rand_acts = torch.randint_like(res, 0, tkn.act_vocab_size) # Простые рандомные acts
+    rand_acts = torch.randint_like(res, 0, tkn.act_vocab_size-1) # Простые рандомные acts... Хотя... Не такие и простые!
+                                                                 # Так получилось, что среди Acts есть GOAL, и вот его мы
+                                                                 # не должны получать рандомно! Поэтому -1, ибо GOAL - крайний!
     res[res==0] = rand_acts[res==0]  # Если пока тупенький и act=0, делаем random
     acts = np.array(res[:,-1].cpu(),np.int8)
     acts = np.expand_dims(acts,axis=1)
