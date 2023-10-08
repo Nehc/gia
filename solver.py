@@ -40,17 +40,18 @@ class Solver:
       else: # А если нету - просто собираем из reference, vis и pad вместо aсtion 
         input = self.tkn.encode(tg,ind, pd).unsqueeze(1)
       if goal==None: # Вот оно! :) Тут собираем рандомную цель с маскированым vis
-        masked = torch.torch.ones_like(input[:,-1,1:-1]) * self.tkn.MASK_IDX
+        masked = torch.torch.ones_like(input[:,-1,1:-1],
+                                       device='cpu') * self.tkn.MASK_IDX
         randgoal = torch.randint(self.tkn.ref_tokens,
                                  self.tkn.act_tokens,
                                 (count,1))
         G = torch.ones(count,1)*self.tkn.GOAL_IDX
-        goal = torch.cat([randgoal,masked,G])
+        goal = torch.cat([randgoal,masked,G],dim=1).to(torch.int)
       pr = self.thinker(goal.to(self.device),       # И наконец засылаем в "думалку"
                         input.reshape(count,-1).to(self.device))
       res = pr[:,-1:,self.tkn.act_tokens:].argmax(-1) # Можно как-нить и похитрее семплить! 
-    rand_acts = torch.randint_like(res, 0, pr.shape[1])
-    res[res==0] = rand_acts[res==0]  # Если пока тупенький и Act=0, делаем random
+    rand_acts = torch.randint_like(res, 0, tkn.act_vocab_size) # Простые рандомные acts
+    res[res==0] = rand_acts[res==0]  # Если пока тупенький и act=0, делаем random
     acts = np.array(res[:,-1].cpu(),np.int8)
     acts = np.expand_dims(acts,axis=1)
     act.add_discrete(acts)
