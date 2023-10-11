@@ -50,8 +50,9 @@ source and reconstructed image:
 - **Visual** - 49 visual vq_gan tokens (i am use 112x122 input, that give 7x7 tiles), 
 - **A** - action tokens from acts_list, 
 - **G** - goal, tkn.GOAL_IDX.
+
 <a target="_blank" href="https://colab.research.google.com/github/Nehc/gia/blob/main/colab/gia.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+  <img src="https://github-production-user-asset-6210df.s3.amazonaws.com/8426195/274289802-dc718688-7796-449d-9a23-6331a923d518.png" alt="Open In Colab"/>
 </a>
 
 ```colab
@@ -125,6 +126,8 @@ for i in tqdm.trange(steps):
 datas = torch.cat(datas,dim=1)
 torch.save(datas, 'dataset.pt')
 ```
+![image](https://github.com/Nehc/gia/assets/8426195/84b5a5fa-258e-473d-a16b-99d5db82ded8)
+
 ### Train!: 
 ```python
 import pytorch_lightning as pl
