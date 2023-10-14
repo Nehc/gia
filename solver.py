@@ -15,7 +15,7 @@ class Solver:
     self.tkn = thinker.tkn   # токенайзер
     self.PAD_IDX = self.tkn.PAD_IDX
     self.vq_gan = VQGAN().to(self.device) # гляделка
-    self.history, self.goal = None, None
+    self.history, self.goal, self.last_acts = None, None, None
 
   def Action_on_Decision(self, DS, goal=None):
     act = ActionTuple()
@@ -39,7 +39,9 @@ class Solver:
                            self.tkn.encode(tg,ind,pd).unsqueeze(1)],dim=1)
       else: # А если нету - просто собираем из reference, vis и pad вместо aсtion 
         input = self.tkn.encode(tg,ind, pd).unsqueeze(1)
-      if self.goal is None: # Вот оно! :) Тут собираем рандомную цель с маскированым vis
+      if (self.goal is None # Вот оно! :) Тут собираем рандомную цель с маскированым vis
+          or np.any(self.last_acts == # Если цель не задана, или задана и досигнута 
+                    self.tkn.GOAL_IDX-self.tkn.act_tokens)): # хотя бы одним из агентов
         masked = torch.torch.ones_like(input[:,-1,1:-1], device='cpu') * self.tkn.MASK_IDX
         randgoal = torch.randint(self.tkn.ref_tokens, self.tkn.act_tokens, (count,1))
         G = torch.ones(count,1)*self.tkn.GOAL_IDX
@@ -53,6 +55,7 @@ class Solver:
     res[res==0] = rand_acts[res==0]  # Если пока тупенький и act=0, делаем random
     acts = np.array(res[:,-1].cpu(),np.int8)
     acts = np.expand_dims(acts,axis=1)
+    self.last_acts = acts 
     act.add_discrete(acts)
     history = torch.cat([input.reshape(count,-1)[:,:-1],res+self.tkn.act_tokens],dim=-1)
     self.history = history.reshape(count,-1,self.fr_size)  
