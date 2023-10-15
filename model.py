@@ -177,8 +177,9 @@ class Thinker(pl.LightningModule):
     pr_p = self(goals,in_p) # shape: batch, tokens len, logits(vocab_size)
     #---------------------------------------------------------------------------
     entropy = self.entropy_loss(pr_p.reshape(-1, pr_p.shape[-1]), in_p.reshape(-1))    
-    #---------------------------------------------------------------------------
-    loss = self.base_loss(pr_p.reshape(-1, pr_p.shape[-1]), out_p.reshape(-1)) - entropy
+    loss = self.base_loss(pr_p.reshape(-1, pr_p.shape[-1]), out_p.reshape(-1)) 
+    self.log('entropy', entropy); self.log('base_loss', loss)
+    loss -= entropy 
     #---------------------------------------------------------------------------
     if with_ds:
       #           - - - - - - - - - - -
@@ -194,7 +195,9 @@ class Thinker(pl.LightningModule):
       out_a = torch.clamp(out_p[:,f_size-1::f_size] - a_bias,0)
       out_a = oneHotProb(out_a, disconts[:,1:], num_classes=a_len)
       # pr_a У нас уже flatten, а out_a прям при передаче в лосс
-      loss += self.act_loss(pr_a, out_a.reshape(-1, out_a.shape[-1])) # / entropy
+      act_loss = self.act_loss(pr_a, out_a.reshape(-1, out_a.shape[-1])) 
+      self.log('act_loss', act_loss)
+      loss += act_loss; 
     #---------------------------------------------------------------------------
     return loss
   

@@ -32,7 +32,10 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
         sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
         sorted_indices_to_remove[..., 0] = 0
 
-        indices_to_remove = sorted_indices[sorted_indices_to_remove]
+        #indices_to_remove = sorted_indices[sorted_indices_to_remove]
+        # scatter sorted tensors to original indexing
+        indices_to_remove = sorted_indices_to_remove.scatter(dim=1,
+                              index=sorted_indices, src=sorted_indices_to_remove)
         logits[indices_to_remove] = filter_value
     return logits
 
@@ -77,6 +80,7 @@ class Solver:
       if (self.goal is None # Вот оно! :) Тут собираем рандомную цель с маскированым vis
           or np.any(self.last_acts == # Если цель не задана, или задана и досигнута 
                     self.tkn.GOAL_IDX-self.tkn.act_tokens)): # хотя бы одним из агентов
+        #print('Catched! New Goal...') # Debug reason
         masked = torch.torch.ones_like(input[:,-1,1:-1], device='cpu') * self.tkn.MASK_IDX
         randgoal = torch.randint(self.tkn.ref_tokens, self.tkn.act_tokens, (count,1))
         G = torch.ones(count,1)*self.tkn.GOAL_IDX
@@ -87,15 +91,15 @@ class Solver:
       #res = pr[:,-1:,self.tkn.act_tokens:].argmax(-1) # Можно как-нить и похитрее семплить! 
       # Например, так: 
       # Keep only the last token predictions of the first batch item (batch size 1), apply a temperature coefficient and filter
-      logits = pr[:,-1:,self.tkn.act_tokens:] / self.temp
+      logits = pr[:,-1,self.tkn.act_tokens:] / self.temp
       filtered_logits = top_k_top_p_filtering(logits, self.top_k, self.top_p)
       probabilities = F.softmax(filtered_logits, dim=-1)
       res = torch.multinomial(probabilities, 1) 
-
     rand_acts = torch.randint_like(res, 0, self.tkn.act_vocab_size-1) # Простые рандомные acts... Хотя... Не такие и простые!
                                                                  # Так получилось, что среди Acts есть GOAL, и вот его мы
                                                                  # не должны получать рандомно! Поэтому -1, ибо GOAL - крайний!
     res[res==0] = rand_acts[res==0]  # Если пока тупенький и act=0, делаем random
+    res[res>=self.tkn.act_vocab_size] = rand_acts[res>=self.tkn.act_vocab_size] # Это... Странный баг
     acts = np.array(res[:,-1].cpu(),np.int8)
     acts = np.expand_dims(acts,axis=1)
     self.last_acts = acts 
