@@ -34,6 +34,7 @@ class Thinker(pl.LightningModule):
     self.head = nn.Linear(conf.emb_size, conf.vocab_size, bias=False)
     self.token_emb.weight = self.head.weight
     self.base_loss = nn.CrossEntropyLoss(reduction='sum',ignore_index=conf.PAD_IDX)
+    self.entropy_loss = nn.CrossEntropyLoss(reduction='mean',ignore_index=conf.PAD_IDX)
     self.act_loss = nn.CrossEntropyLoss(reduction='sum')
 
     # init all weights
@@ -175,7 +176,9 @@ class Thinker(pl.LightningModule):
     #---------------------------------------------------------------------------
     pr_p = self(goals,in_p) # shape: batch, tokens len, logits(vocab_size)
     #---------------------------------------------------------------------------
-    loss = self.base_loss(pr_p.reshape(-1, pr_p.shape[-1]), out_p.reshape(-1))
+    entropy = self.entropy_loss(pr_p.reshape(-1, pr_p.shape[-1]), in_p.reshape(-1))    
+    #---------------------------------------------------------------------------
+    loss = self.base_loss(pr_p.reshape(-1, pr_p.shape[-1]), out_p.reshape(-1)) - entropy
     #---------------------------------------------------------------------------
     if with_ds:
       #           - - - - - - - - - - -
@@ -191,7 +194,7 @@ class Thinker(pl.LightningModule):
       out_a = torch.clamp(out_p[:,f_size-1::f_size] - a_bias,0)
       out_a = oneHotProb(out_a, disconts[:,1:], num_classes=a_len)
       # pr_a У нас уже flatten, а out_a прям при передаче в лосс
-      loss += self.act_loss(pr_a, out_a.reshape(-1, out_a.shape[-1]))
+      loss += self.act_loss(pr_a, out_a.reshape(-1, out_a.shape[-1])) # / entropy
     #---------------------------------------------------------------------------
     return loss
   
@@ -210,8 +213,10 @@ class Thinker(pl.LightningModule):
   def training_epoch_end(self, training_step_outputs):
     if self.ds and self.tkn:
       g,_,d = self.ds[0]
+      self.eval()
       with torch.no_grad():
         pr = self.predict(g.to(self.device), d[:self.config.frame_size].to(self.device))
+      self.train()
       res = pr[0].reshape(-1,51).cpu()
       _, r = self.tkn.decode_one(res[:,0].squeeze(),False,True)
       fr = self.tkn.decode_one(res[:,1:-1].squeeze()).reshape(-1,49)

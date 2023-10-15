@@ -2,12 +2,45 @@
 import torch, numpy as np
 from mlagents_envs.environment import ActionTuple
 from torch import LongTensor, argmax
+import torch.nn.functional as F
 
 from .vqgan import VQGAN, preprocess_vqgan
 from .model import Thinker
 
+def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')):
+    """ Filter a distribution of logits using top-k and/or nucleus (top-p) filtering
+        Args:
+            logits: logits distribution shape (vocabulary size)
+            top_k >0: keep only top k tokens with highest probability (top-k filtering).
+            top_p >0.0: keep the top tokens with cumulative probability >= top_p (nucleus filtering).
+                Nucleus filtering is described in Holtzman et al. (http://arxiv.org/abs/1904.09751)
+    """
+    #assert logits.dim() == 1  # batch size 1 for now - could be updated for more but the code would be less clear
+    top_k = min(top_k, logits.size(-1))  # Safety check
+    if top_k > 0:
+        # Remove all tokens with a probability less than the last token of the top-k
+        indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
+        logits[indices_to_remove] = filter_value
+
+    if top_p > 0.0:
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+
+        # Remove tokens with cumulative probability above the threshold
+        sorted_indices_to_remove = cumulative_probs > top_p
+        # Shift the indices to the right to keep also the first token above the threshold
+        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+        sorted_indices_to_remove[..., 0] = 0
+
+        indices_to_remove = sorted_indices[sorted_indices_to_remove]
+        logits[indices_to_remove] = filter_value
+    return logits
+
+
 class Solver:
-  def __init__(self, thinker:Thinker):
+  def __init__(self, thinker:Thinker, 
+               temperature = 1.0,
+               top_k = 0, top_p = 0.9):
     self.device = thinker.device
     self.thinker = thinker   # думалка
     self.fr_size = thinker.config.frame_size
@@ -16,6 +49,8 @@ class Solver:
     self.PAD_IDX = self.tkn.PAD_IDX
     self.vq_gan = VQGAN().to(self.device) # гляделка
     self.history, self.goal, self.last_acts = None, None, None
+    self.top_k, self.top_p = top_k, top_p
+    self.temp = temperature
 
   def Action_on_Decision(self, DS, goal=None):
     act = ActionTuple()
@@ -46,9 +81,17 @@ class Solver:
         randgoal = torch.randint(self.tkn.ref_tokens, self.tkn.act_tokens, (count,1))
         G = torch.ones(count,1)*self.tkn.GOAL_IDX
         self.goal = torch.cat([randgoal,masked,G],dim=1).to(torch.int)
+      self.thinker.eval()
       pr = self.thinker(self.goal.to(self.device),       # И наконец засылаем в "думалку"
                         input.reshape(count,-1).to(self.device))
-      res = pr[:,-1:,self.tkn.act_tokens:].argmax(-1) # Можно как-нить и похитрее семплить! 
+      #res = pr[:,-1:,self.tkn.act_tokens:].argmax(-1) # Можно как-нить и похитрее семплить! 
+      # Например, так: 
+      # Keep only the last token predictions of the first batch item (batch size 1), apply a temperature coefficient and filter
+      logits = pr[:,-1:,self.tkn.act_tokens:] / self.temp
+      filtered_logits = top_k_top_p_filtering(logits, self.top_k, self.top_p)
+      probabilities = F.softmax(filtered_logits, dim=-1)
+      res = torch.multinomial(probabilities, 1) 
+
     rand_acts = torch.randint_like(res, 0, self.tkn.act_vocab_size-1) # Простые рандомные acts... Хотя... Не такие и простые!
                                                                  # Так получилось, что среди Acts есть GOAL, и вот его мы
                                                                  # не должны получать рандомно! Поэтому -1, ибо GOAL - крайний!
