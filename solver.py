@@ -99,7 +99,7 @@ class Solver:
                                                                  # Так получилось, что среди Acts есть GOAL, и вот его мы
                                                                  # не должны получать рандомно! Поэтому -1, ибо GOAL - крайний!
     res[res==0] = rand_acts[res==0]  # Если пока тупенький и act=0, делаем random
-    res[res>=self.tkn.act_vocab_size] = rand_acts[res>=self.tkn.act_vocab_size] # Это... Странный баг
+    res[res>=self.tkn.act_vocab_size] = rand_acts[res>=self.tkn.act_vocab_size] # странный баг. После top семплит за пределами acts... 
     acts = np.array(res[:,-1].cpu(),np.int8)
     acts = np.expand_dims(acts,axis=1)
     self.last_acts = acts 
