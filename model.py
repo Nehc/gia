@@ -179,7 +179,7 @@ class Thinker(pl.LightningModule):
     entropy = self.entropy_loss(pr_p.reshape(-1, pr_p.shape[-1]), in_p.reshape(-1))    
     loss = self.base_loss(pr_p.reshape(-1, pr_p.shape[-1]), out_p.reshape(-1)) 
     self.log('entropy', entropy); self.log('base_loss', loss)
-    loss -= entropy 
+    #loss -= entropy 
     #---------------------------------------------------------------------------
     if with_ds:
       #           - - - - - - - - - - -
