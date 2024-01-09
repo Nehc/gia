@@ -71,7 +71,7 @@ env_type = "simple" # @param ["simple", "cs2_italy"]
 !ls -l envs/{env_type}
 env_name = f"envs/{env_type}/{env_type}.x86_64"
 ```
-### Environment init
+
 ```Python
 #from pyvirtualdisplay import Display # can`t screenshots
 from pyvirtualdisplay.smartdisplay import SmartDisplay as Display
